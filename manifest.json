@@ -4,7 +4,7 @@
   "scrapers": [
     {
       "id": "torrentclaw",
-      "name": "🦞 YTS",
+      "name": "YTS",
       "description": "1080p torrent magnet links",
       "version": "1.0.0",
       "author": "Nuvio Team",
@@ -12,7 +12,7 @@
       "filename": "providers/torrentclaw.js",
       "enabled": true,
       "hasSettings": true,
-      "logo": "https://i.postimg.cc/N0mft7v8/torrentclaw.png",
+      "logo": "https://em-content.zobj.net/source/apple/391/eagle_1f985.png",
       "contentLanguage": ["en", "hi"],
       "formats": ["mkv", "mp4"],
       "supportsExternalPlayer": true 
