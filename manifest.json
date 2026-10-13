@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scrapers": [
     {
-      "id": "yts",
+      "id": "yts_720p",
       "name": "YTS 720p",
       "description": "720p torrent magnet links",
       "version": "1.0.0",
@@ -18,7 +18,7 @@
       "supportsExternalPlayer": true 
     },
     {
-      "id": "yts",
+      "id": "yts_1080p",
       "name": "YTS 1080p",
       "description": "1080p torrent magnet links",
       "version": "1.0.0",
