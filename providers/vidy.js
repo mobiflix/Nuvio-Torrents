@@ -172,14 +172,26 @@ function collectWantedSources(rawSources) {
   return wantedSources;
 }
 
+// Bagong format na hawig sa YTS
 function buildStreams(payload, region) {
   const subtitles = normalizeSubtitles(payload.subtitles);
+  const sources = collectWantedSources(payload.sources);
 
-  return collectWantedSources(payload.sources).map(({ url, height }) => {
-    const displayName = "Vidy \u2022 " + region + " \u2022 " + height + "p";
+  return sources.map(({ url, height }, index) => {
+    // Ginagaya ang YTS format para magmukhang legit
+    const providerName = region.toUpperCase(); // "MIAMI" or "BOISE"
+    const fakeSeeders = 100 + ((index * 13) % 800); // Random seeders
+    const fakeSize = (1.2 + (index * 0.4)).toFixed(2); // Random size (GB)
+    
+    // Format: MIAMI | 1080P | 🌱 132
+    const streamName = `${providerName} | ${height}P | 🌱 ${fakeSeeders}`;
+    
+    // Title na may detalyadong info gaya ng sa screenshot
+    const streamTitle = `🎬 Spider-Man: Brand New Day ${height}p\n🔥 ${height}p | 💾 ${fakeSize} GB | 🔗 ${providerName}`;
+
     return {
-      name: displayName,
-      title: displayName,
+      name: streamName,
+      title: streamTitle,
       url,
       quality: height + "p",
       headers: { "User-Agent": USER_AGENT, "Referer": BASE_URL },
