@@ -165,19 +165,18 @@ function collectWantedSources(rawSources) {
   for (const source of rawSources || []) {
     if (!source || !isHttpUrl(source.url) || seenUrls.has(source.url)) continue;
     const height = parseHeight(source.quality);
-    if (height !== 2160 && height !== 1080) continue;
+    if (height !== 1080) continue;
     seenUrls.add(source.url);
     wantedSources.push({ url: source.url, height });
   }
-  return wantedSources.sort((a, b) => b.height - a.height);
+  return wantedSources;
 }
 
-function buildStreams(payload) {
+function buildStreams(payload, region) {
   const subtitles = normalizeSubtitles(payload.subtitles);
 
   return collectWantedSources(payload.sources).map(({ url, height }) => {
-    const sortPrefix = height === 2160 ? "\u200B" : "\uFEFF";
-    const displayName = sortPrefix + "Vidy \u2022 " + height + "p";
+    const displayName = "Vidy \u2022 " + region + " \u2022 " + height + "p";
     return {
       name: displayName,
       title: displayName,
@@ -210,14 +209,19 @@ async function fetchPayloadFromRegion(region, mediaType, tmdbId, season, episode
   return payload.sources && payload.sources.length > 0 ? payload : null;
 }
 
-async function fetchPayload(mediaType, tmdbId, season, episode) {
-  for (const region of ["miami", "boise", "atlanta", "seattle", "phoenix"]) {
+async function fetchAllPayloads(mediaType, tmdbId, season, episode) {
+  const regions = ["miami", "boise"];
+  const payloads = [];
+
+  for (const region of regions) {
     try {
-      const payload = await fetchPayloadFromRegion(region, mediaType, tmdbId, season, episode);
-      if (payload) return payload;
+      const payload = await fetchPayloadFromRegion(
+        region, mediaType, tmdbId, season, episode
+      );
+      if (payload) payloads.push({ region, payload });
     } catch (error) { }
   }
-  return null;
+  return payloads;
 }
 
 async function getStreams(tmdbId, mediaType, season, episode) {
@@ -227,13 +231,23 @@ async function getStreams(tmdbId, mediaType, season, episode) {
     if (!numericTmdbId) return [];
     if (normalizedType === "tv" && (season == null || episode == null)) return [];
 
-    const payload = await fetchPayload(
+    const payloads = await fetchAllPayloads(
       normalizedType,
       numericTmdbId,
       Number(season),
       Number(episode)
     );
-    return payload ? buildStreams(payload) : [];
+
+    const allStreams = [];
+    const seen = new Set();
+    for (const { region, payload } of payloads) {
+      for (const stream of buildStreams(payload, region)) {
+        if (seen.has(stream.url)) continue;
+        seen.add(stream.url);
+        allStreams.push(stream);
+      }
+    }
+    return allStreams;
   } catch (error) {
     return [];
   }
